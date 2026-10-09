@@ -26,10 +26,26 @@ class User(Base):
         primary_key=True,
     )
 
+    first_name: Mapped[str] = mapped_column(
+        String(320),
+        nullable=False,
+    )
+
+    last_name: Mapped[str] = mapped_column(
+        String(320),
+        nullable=False,
+    )
+
     email: Mapped[str] = mapped_column(
         String(320),
         unique=True,
         index=True,
+        nullable=False,
+    )
+
+    phone: Mapped[str] = mapped_column(
+        String(30),
+        unique=True,
         nullable=False,
     )
 
@@ -84,6 +100,42 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+
+    # Terms and Conditions
+    terms_accepted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    terms_version: Mapped[str | None] = mapped_column(
+        String(30),
+        nullable=True,
+    )
+
+    # Privacy Policy
+    privacy_policy_accepted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    privacy_policy_version: Mapped[str | None] = mapped_column(
+        String(30),
+        nullable=True,
+    )
+
+    # Marketing consent
+    marketing_consent: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+    )
+
+    marketing_consent_updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    # A note on consent records: For stronger auditability, There'll be a separate consent-history table later.
+    # These fields record the current state and latest timestamps, but they don't preserve every previous consent or withdrawal event.
 
 
 class UserSession(Base):

@@ -1,6 +1,7 @@
 #This is the API contract your frontend developer will work against.
 
 from datetime import datetime
+from typing import Literal
 
 from pydantic import (
     BaseModel,
@@ -33,7 +34,22 @@ class UserResponse(BaseModel):
 
 
 class RegisterRequest(BaseModel):
+    first_name: str = Field(
+        min_length=1,
+        max_length=100,
+    )
+
+    last_name: str = Field(
+        min_length=1,
+        max_length=100,
+    )
     email: EmailStr
+    phone: str = Field(
+        min_length=7,
+        max_length=20,
+    )
+
+    i_am: Literal["customer", "farmer"]
     password: str = Field(
         min_length=8,
         max_length=128,
@@ -43,10 +59,30 @@ class RegisterRequest(BaseModel):
         max_length=128,
     )
 
+    @field_validator("first_name", "last_name")
+    @classmethod
+    def normalize_name(cls, value: str) -> str:
+        value = value.strip()
+
+        if not value:
+            raise ValueError("Name cannot be empty")
+
+        return value
+
     @field_validator("email")
     @classmethod
     def normalize_email(cls, value: EmailStr):
         return str(value).strip().lower()
+
+    @field_validator("phone")
+    @classmethod
+    def normalize_phone(cls, value: str) -> str:
+        value = value.strip()
+
+        if not value:
+            raise ValueError("Phone number cannot be empty")
+
+        return value
 
     @field_validator("confirm_password")
     @classmethod
@@ -68,7 +104,7 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str = Field(
-        min_length=1,
+        min_length=8,
         max_length=128,
     )
     remember_me: bool = False
